@@ -1,0 +1,1 @@
+{{ include "common/skills/exec-simple/SKILL.md" }}

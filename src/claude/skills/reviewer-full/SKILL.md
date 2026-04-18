@@ -1,0 +1,1 @@
+{{ include "common/skills/reviewer-full/SKILL.md" }}

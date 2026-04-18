@@ -1,0 +1,1 @@
+{{ include "common/skills/golang-pro/SKILL.md" }}
