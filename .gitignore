@@ -3,10 +3,6 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Generated output (built from src/ by scripts/build.py)
-.claude/
-.codex/
-
 # Docs build artifacts
 docs/
 
