@@ -84,6 +84,11 @@ def build_all(project_root: Path) -> None:
             output_dir = output_root / relative_dir
             output_dir.mkdir(parents=True, exist_ok=True)
             (output_dir / "SKILL.md").write_text(expanded, encoding="utf-8")
+            for extra in sorted(template_path.parent.rglob("*")):
+                if extra.is_file() and extra.name != "SKILL.md":
+                    dest = output_dir / extra.relative_to(template_path.parent)
+                    dest.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(extra, dest)
 
     for tool, output_root_fn in SUBAGENT_OUTPUTS.items():
         tool_agents = collect_agents(src_root / tool / "agents")
