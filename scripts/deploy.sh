@@ -23,6 +23,9 @@ deploy() {
   done
 }
 
+echo "Building..."
+python3 "$REPO/scripts/build.py"
+
 echo "Deploying Claude skills..."
 deploy claude skills "$HOME/.claude/skills"
 
