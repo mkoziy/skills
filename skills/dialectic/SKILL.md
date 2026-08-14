@@ -48,32 +48,32 @@ After both agents complete, synthesize findings into an objective conclusion:
 
 **Architecture decisions:**
 ```
-/thinking-tools:dialectic this microservice split improves maintainability
+/dialectic this microservice split improves maintainability
 ```
 
 **Bug analysis:**
 ```
-/thinking-tools:dialectic the connection pool fixes the timeout issue
+/dialectic the connection pool fixes the timeout issue
 ```
 
 **Performance claims:**
 ```
-/thinking-tools:dialectic caching reduced database load by 80%
+/dialectic caching reduced database load by 80%
 ```
 
 **Refactoring safety:**
 ```
-/thinking-tools:dialectic extracting this interface simplifies testing
+/dialectic extracting this interface simplifies testing
 ```
 
 **Code review:**
 ```
-/thinking-tools:dialectic this implementation is thread-safe
+/dialectic this implementation is thread-safe
 ```
 
 **Review changes:**
 ```
-/thinking-tools:dialectic review the changes in server.go
+/dialectic review the changes in server.go
 ```
 
 ## Key Principles
