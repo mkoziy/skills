@@ -1,1 +1,0 @@
-{{ include "common/skills/typescript-pro/SKILL.md" }}

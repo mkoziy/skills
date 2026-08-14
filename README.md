@@ -1,69 +1,26 @@
-# Skills Builder
+# skills
 
-This repo builds skill and agent markdown files from `src/` into agent-specific folders for Claude and Codex, and deploys them to `~/.claude` and `~/.codex`.
-
-## Layout
-
-```
-src/
-  common/          # shared source (included via {{ include "..." }})
-    skills/
-    agents/
-  claude/          # Claude-specific source
-    skills/
-    agents/
-  codex/           # Codex-specific source
-    skills/
-    agents/
-scripts/
-  build.py         # expands includes, writes to .claude/ and .codex/
-  deploy.sh        # copies built output to ~/.claude and ~/.codex
-tests/
-  test_build.py    # minimal build smoke test
-```
-
-## Agent Targeting
-
-Only files under `src/claude` or `src/codex` are built. `src/common` is include-only — nothing is generated directly from it.
-
-## Includes
-
-Skill files can reuse shared content from anywhere under `src/` with:
-
-```md
-{{ include "common/skills/exec-simple/SKILL.md" }}
-```
-
-Include paths are resolved from `src/`.
-
-## Build
-
-Expand all includes and write generated files:
+A flat collection of [Agent Skills](https://www.skills.sh/), installable with:
 
 ```bash
-python3 scripts/build.py
+npx skills add mkoziy/skills
 ```
 
-The script scans `src/claude` and `src/codex`, expands `{{ include "..." }}` directives, and writes output into `.claude/` and `.codex/`, removing stale skill/agent directories first.
-
-## Deploy
-
-Copy built output to `~/.claude` and `~/.codex`:
+Or a single skill:
 
 ```bash
-bash scripts/deploy.sh
+npx skills add mkoziy/skills --skill critique
 ```
 
-This copies each skill/agent subdirectory from `.claude/` and `.codex/` into the corresponding directories under `~`.
+## Skills
 
-## Test
+| Skill | Description |
+| --- | --- |
+| [critique](skills/critique/SKILL.md) | Brutally honest critique of a plan, file, or prompt — exposes weak assumptions, logical gaps, and blind spots. |
+| [ask-codex](skills/ask-codex/SKILL.md) | Consult OpenAI Codex as a second opinion for investigation, debugging, or code review. |
+| [dialectic](skills/dialectic/SKILL.md) | Prove and counter-prove a statement with parallel agents to eliminate confirmation bias. |
+| [root-cause-investigator](skills/root-cause-investigator/SKILL.md) | Systematic 5-Why root cause analysis for bugs, failures, and regressions. |
 
-```bash
-python3 -m unittest tests.test_build -v
-```
+`ask-codex`, `dialectic`, and `root-cause-investigator` are ported from [umputun/cc-thingz](https://github.com/umputun/cc-thingz)'s `thinking-tools` plugin.
 
-## Notes
-
-- Edit files under `src/`, not the generated output in `.claude/` or `.codex/`.
-- Includes resolve from `src/`, so cross-agent includes work.
-- Run `build.py` then `deploy.sh` to push changes to the live agent configs.
+`cc-thingz` also ships a `skill-eval` plugin that forces skill evaluation before every response — it's a hook (`UserPromptSubmit`), not a skill, so it has no `SKILL.md` and isn't portable to this format. Install it directly from cc-thingz's plugin marketplace if you want it.
