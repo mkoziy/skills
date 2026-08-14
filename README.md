@@ -20,6 +20,7 @@ npx skills add mkoziy/skills --skill critique
 | --- | --- |
 | [critique](skills/critique/SKILL.md) | Brutally honest critique of a plan, file, or prompt — exposes weak assumptions, logical gaps, and blind spots. |
 | [brainstorm](skills/brainstorm/SKILL.md) | Turn ideas into designs through collaborative, one-question-at-a-time dialogue before implementation. |
+| [make](skills/make/SKILL.md) | Create a structured implementation plan in docs/plans/ with interactive context gathering, optional interactive/auto review. |
 | [exec](skills/exec/SKILL.md) | Execute a plan file's tasks sequentially, each in an isolated subagent, with review and finalize phases. |
 | [git-review](skills/git-review/SKILL.md) | Interactive diff annotation review — edit the diff, get feedback addressed in a loop. |
 | [pr](skills/pr/SKILL.md) | Comprehensive PR/issue review — architecture, tests, scope creep, drafts a review comment. |
@@ -35,7 +36,8 @@ npx skills add mkoziy/skills --skill critique
 | [md-copy](skills/md-copy/SKILL.md) | Format the final answer as markdown and copy it to the clipboard. |
 | [txt-copy](skills/txt-copy/SKILL.md) | Copy generated text content to the clipboard. |
 
-All skills except `critique` are ported from [umputun/cc-thingz](https://github.com/umputun/cc-thingz), flattened out of its per-plugin layout (`plugins/<plugin>/skills/<skill>/`) into the single-tier `skills/<skill>/` layout skills.sh expects, with plugin-only mechanics (`${CLAUDE_PLUGIN_ROOT}`, `${CLAUDE_PLUGIN_DATA}`) rewritten to resolve relative to each skill's own directory. Two plugin-only pieces didn't survive the port and aren't included:
+All skills except `critique` are ported from [umputun/cc-thingz](https://github.com/umputun/cc-thingz), flattened out of its per-plugin layout (`plugins/<plugin>/skills/<skill>/`) into the single-tier `skills/<skill>/` layout skills.sh expects, with plugin-only mechanics (`${CLAUDE_PLUGIN_ROOT}`, `${CLAUDE_PLUGIN_DATA}`) rewritten to resolve relative to each skill's own directory. `make` additionally had its `plan-review` custom subagent (`Task(subagent_type=plan-review)`, a Claude Code plugin-only mechanism skills.sh doesn't support) turned into a plain prompt file (`references/agents/plan-review.txt`) launched through a `general-purpose` subagent — the same pattern `exec`'s specialist reviewers already used.
+
+One plugin-only piece didn't survive the port and isn't included:
 
 - `skill-eval` — a `UserPromptSubmit` hook that forces skill evaluation before every response. Hooks aren't skills; there's no `SKILL.md` to write. Install it from cc-thingz's plugin marketplace if you want it.
-- `planning`'s `make` command — a slash command + subagent + hook bundle for interactive plan authoring, not a standalone skill. `exec` (which runs an existing plan file) ported cleanly; `make` (which creates one) didn't.
