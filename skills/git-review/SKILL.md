@@ -8,6 +8,8 @@ allowed-tools: Bash, Read, Edit, Write, Grep, Glob
 
 Interactive annotation-based code review using editor overlays.
 
+Script paths below (`scripts/...`) are relative to this skill's own directory, not the shell's working directory — resolve them against the directory this SKILL.md was read from before running.
+
 ## Activation Triggers
 
 - "git review", "review changes", "review my changes"
@@ -29,7 +31,7 @@ Interactive annotation-based code review using editor overlays.
 ### Step 1: Run the script
 
 ```bash
-./scripts/git-review.py [base_ref]
+scripts/git-review.py [base_ref]
 ```
 
 - No arguments: auto-detects uncommitted changes or branch vs default branch

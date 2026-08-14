@@ -16,7 +16,7 @@ Creates GitHub, GitLab, or Gitea releases with auto-versioning and release notes
 
 ## Scripts
 
-Helper scripts in this skill's `scripts/` directory (paths relative to this SKILL.md's own directory):
+Helper scripts in this skill's `scripts/` directory. Paths below are relative to this SKILL.md's own directory, not the shell's working directory — resolve them against wherever this file was read from before running:
 - `detect-platform.sh` - outputs `github`, `gitlab`, or `gitea`
 - `calc-version.sh <type>` - outputs new version (e.g., `v1.2.3`)
 - `get-notes.sh <platform>` - outputs release notes (PRs/MRs or commits)
@@ -45,7 +45,7 @@ Use AskUserQuestion tool to get release type:
 ### Step 2: Detect Platform
 
 ```bash
-platform=$(sh ./scripts/detect-platform.sh)
+platform=$(sh scripts/detect-platform.sh)
 ```
 
 ### Step 3: Validate Prerequisites
@@ -69,7 +69,7 @@ last_tag=$(git describe --tags --abbrev=0 --match "v*" 2>/dev/null || echo "none
 ### Step 5: Calculate New Version
 
 ```bash
-new_version=$(sh ./scripts/calc-version.sh <release_type>)
+new_version=$(sh scripts/calc-version.sh <release_type>)
 ```
 
 Verify tag doesn't already exist:
@@ -82,7 +82,7 @@ fi
 ### Step 6: Generate Release Notes
 
 ```bash
-notes=$(sh ./scripts/get-notes.sh "$platform")
+notes=$(sh scripts/get-notes.sh "$platform")
 ```
 
 Script logic:

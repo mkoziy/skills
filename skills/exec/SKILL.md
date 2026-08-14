@@ -8,6 +8,8 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash(bash:*), Agent, AskUserQuesti
 
 Execute plan file tasks sequentially, each in an isolated subagent.
 
+Script, reference, and prompt paths below (`scripts/...`, `references/...`, `prompts/...`) are relative to this skill's own directory, not the shell's working directory — resolve them against the directory this SKILL.md was read from before running. When passing paths to a subagent (which starts fresh and cannot do this resolution itself), substitute in the absolute path as `SKILL_ROOT` — see Placeholder Substitution below.
+
 ## Arguments
 
 - `$ARGUMENTS` — path to plan file (optional; if omitted, ask user to pick from `plans_dir` userConfig directory, default: `docs/plans/`)
@@ -16,8 +18,8 @@ Execute plan file tasks sequentially, each in an isolated subagent.
 
 ALWAYS use the resolve script to read prompt and agent files. NEVER construct the override chain manually:
 ```
-bash ./scripts/resolve-file.sh prompts/task.md
-bash ./scripts/resolve-file.sh agents/quality.txt
+bash scripts/resolve-file.sh prompts/task.md
+bash scripts/resolve-file.sh agents/quality.txt
 ```
 The script checks project overrides (`.claude/exec-plan/<path>`) and bundled defaults automatically. There is no user-level override tier outside a Claude Code plugin marketplace install — `resolve-file.sh` accepts an optional data-dir argument for that case, but it's fine to omit.
 
@@ -32,10 +34,10 @@ Always substitute: `PLAN_FILE_PATH`, `PROGRESS_FILE_PATH`, `DEFAULT_BRANCH`, `SK
 Before starting execution, run this command via Bash tool to check for user-provided custom rules:
 
 ```bash
-bash ./scripts/resolve-rules.sh planning-rules.md
+bash scripts/resolve-rules.sh planning-rules.md
 ```
 
-If the output is non-empty, store it as the resolved custom rules content. When substituting `USER_RULES` in task prompts, wrap the content with a label so the subagent understands it: use "ADDITIONAL CUSTOM RULES:\n<content>" as the substitution. If the output is empty, substitute an empty string for `USER_RULES`. See `./references/custom-rules.md` for full documentation on the rules mechanism.
+If the output is non-empty, store it as the resolved custom rules content. When substituting `USER_RULES` in task prompts, wrap the content with a label so the subagent understands it: use "ADDITIONAL CUSTOM RULES:\n<content>" as the substitution. If the output is empty, substitute an empty string for `USER_RULES`. See `references/custom-rules.md` for full documentation on the rules mechanism.
 
 ## Process
 
@@ -45,13 +47,13 @@ If `$ARGUMENTS` contains a file path, use it. Otherwise, list `.md` files in the
 
 Read the plan file. Count total Task sections (`### Task N:` or `### Iteration N:`) to know the scope.
 
-Determine the default branch: `bash ./scripts/detect-branch.sh`
+Determine the default branch: `bash scripts/detect-branch.sh`
 
 Note: in `hg` repos, detect-branch.sh returns `remote/<name>` (checking `master`, `main`, `trunk` in that order) in modern-Mercurial repos that expose upstream default via `remote/<name>` refs, and falls back to `default` in repos that use the traditional named-branch convention instead. The external-review prompt (`prompts/codex-review.md`) and the finalize prompt (`prompts/finalizer.md`) use git-specific commands and are not VCS-translated upstream. Both phases will be skipped (see step 9 and step 11, which re-detect VCS locally). Users who want hg-native review/finalize can override via `.claude/exec-plan/prompts/codex-review.md` and `.claude/exec-plan/prompts/finalizer.md` — any `git rebase origin/DEFAULT_BRANCH` in the bundled template must be replaced with the hg equivalent in the override, e.g. `hg rebase -d remote/master` when the repo exposes remote-tracking refs, or `hg rebase -d default` when it uses the traditional named-branch convention.
 
 ### Step 2. Ask about worktree isolation
 
-**hg skip**: Detect VCS with `vcs=$(bash ./scripts/detect-vcs.sh)`. If `vcs` is `hg`, skip the worktree question and proceed in current directory. The `EnterWorktree` tool is git-only (wraps `git worktree add`) and has no hg equivalent upstream; users who want isolation in hg repos can use `hg share` manually before invoking `/exec`.
+**hg skip**: Detect VCS with `vcs=$(bash scripts/detect-vcs.sh)`. If `vcs` is `hg`, skip the worktree question and proceed in current directory. The `EnterWorktree` tool is git-only (wraps `git worktree add`) and has no hg equivalent upstream; users who want isolation in hg repos can use `hg share` manually before invoking `/exec`.
 
 First detect current branch state — run `git branch --show-current` and compare with the default branch detected earlier (from `detect-branch.sh`). Two cases:
 
@@ -92,7 +94,7 @@ In BOTH cases: invoke the AskUserQuestion tool **now**, do not generate text fir
 **If the user picks "Worktree (isolated)" or "Move to worktree"** — the main working directory MUST NOT be touched at all: no branch is created or checked out there, and no file changes land there. That isolation is the entire point of this mode. Set `worktree_mode = true` and do this:
 
 1. Record the main tree's path and current branch so you can verify it stayed untouched: `main_tree=$(git rev-parse --show-toplevel)` and `main_branch=$(git branch --show-current)`.
-2. Derive the feature branch name with NO git side effects: `name=$(bash ./scripts/create-branch.sh --print-name <plan-file-path>)`.
+2. Derive the feature branch name with NO git side effects: `name=$(bash scripts/create-branch.sh --print-name <plan-file-path>)`.
 3. Create the isolated worktree with the `EnterWorktree` tool, passing `<name>` as the worktree name. It creates `.claude/worktrees/<name>/` on a new branch `worktree-<name>` forked from the current HEAD and switches the session into it. Capture the worktree's absolute path as `worktree_path`.
 4. Drop the `worktree-` prefix so the branch is just `<name>`, operating on the worktree only: `git -C <worktree_path> branch -m <name>`.
 5. **This means Step 4 (create-branch.sh) is SKIPPED** — the branch already exists inside the worktree. Running create-branch.sh here would `git checkout -b` in the main tree and break isolation.
@@ -125,16 +127,16 @@ Update tasks as you go: `TaskUpdate(taskId, status="in_progress")` when starting
 Otherwise (in-place mode), **MANDATORY**: run the script below. Do NOT create the branch manually — the script strips the date prefix from the plan filename (e.g., `20260329-feature-name.md` → branch `feature-name`).
 
 ```
-bash ./scripts/create-branch.sh <plan-file-path>
+bash scripts/create-branch.sh <plan-file-path>
 ```
 
 The script creates a feature branch if currently on main/master, or stays on the current branch if already on a feature branch. Capture and use the branch name it outputs.
 
 ### Step 5. Initialize progress file
 
-Initialize the progress file: `bash ./scripts/init-progress.sh /tmp/progress-<plan-name>.txt <plan-file-path> <branch-name>` (derive `<plan-name>` from the plan file stem, e.g., `fix-issues.md` → `progress-fix-issues`). The script creates the file with a header. Report the full progress file path to the user.
+Initialize the progress file: `bash scripts/init-progress.sh /tmp/progress-<plan-name>.txt <plan-file-path> <branch-name>` (derive `<plan-name>` from the plan file stem, e.g., `fix-issues.md` → `progress-fix-issues`). The script creates the file with a header. Report the full progress file path to the user.
 
-IMPORTANT: Always use `./scripts/append-progress.sh` to write to the progress file after initialization. Never write directly.
+IMPORTANT: Always use `scripts/append-progress.sh` to write to the progress file after initialization. Never write directly.
 
 ### Step 6. Task loop
 
@@ -182,8 +184,8 @@ Loop up to `review_iterations` times (userConfig, default: 5). Track the current
    - **Iteration 2 and later**: set `REVIEW_PHASE` to `critical`. Per the playbook, launch 2 parallel review agents (quality, implementation) focused on critical/major issues only. Before this iteration, report to user: "--- Review phase 1: critical re-check (iteration N) ---"
 
 2. **Collect findings** — collect findings from ALL launched review agents. Pass the COMPLETE output (not a summary) to the fixer. Do NOT summarize, filter, or dismiss any findings. ALL findings are actionable. Report to user with a short list of findings. Log to progress file:
-   `bash ./scripts/append-progress.sh <progress-file> "review phase 1: findings"`
-   Then pipe: `echo "<findings>" | bash ./scripts/append-progress.sh <progress-file>`
+   `bash scripts/append-progress.sh <progress-file> "review phase 1: findings"`
+   Then pipe: `echo "<findings>" | bash scripts/append-progress.sh <progress-file>`
 
 3. **If ALL agents reported zero issues** → report "Review phase 1: clean" and proceed to the next phase.
 
@@ -202,8 +204,8 @@ Run once (no loop):
 1. **Spawn a smells agent** — resolve `agents/smells.txt` through the override chain. Launch one Agent tool call with `mode: "bypassPermissions"`, `subagent_type: "general-purpose"`, and the resolved agent prompt.
 
 2. **Collect findings** — after the agent returns, report to user with a compact list of findings (one line per finding). Log findings to progress file:
-   `bash ./scripts/append-progress.sh <progress-file> "review phase 2: findings"`
-   Then pipe the findings: `echo "<findings>" | bash ./scripts/append-progress.sh <progress-file>`
+   `bash scripts/append-progress.sh <progress-file> "review phase 2: findings"`
+   Then pipe the findings: `echo "<findings>" | bash scripts/append-progress.sh <progress-file>`
 
 3. **If no issues found** → report "Smells analysis: clean" and proceed to the next phase.
 
@@ -213,7 +215,7 @@ Run once (no loop):
 
 ### Step 9. Review phase 3 — codex external review
 
-**hg skip**: Detect VCS with `vcs=$(bash ./scripts/detect-vcs.sh)`. If `vcs` is `hg`, skip this entire step. Report to user: "hg detected — skipping external review (git-only). Override `prompts/codex-review.md` via `.claude/exec-plan/` to enable hg-native review." Proceed directly to step 10.
+**hg skip**: Detect VCS with `vcs=$(bash scripts/detect-vcs.sh)`. If `vcs` is `hg`, skip this entire step. Report to user: "hg detected — skipping external review (git-only). Override `prompts/codex-review.md` via `.claude/exec-plan/` to enable hg-native review." Proceed directly to step 10.
 
 Report to user: "--- Review phase 3: codex external review ---"
 
@@ -226,9 +228,9 @@ Determine the external review command:
 
 Loop up to `external_review_iterations` times (userConfig, default: 10):
 
-1. **Resolve the codex prompt** — read `prompts/codex-review.md` through the override chain. Replace `DIFF_COMMAND` using `vcs=$(bash ./scripts/detect-vcs.sh)`: for `git`, iteration 1 is `git diff DEFAULT_BRANCH...HEAD` and subsequent iterations are `git diff`; for `hg`, iteration 1 is `hg diff -r 'ancestor(., DEFAULT_BRANCH)'` and subsequent iterations are `hg diff`. Also replace `PLAN_FILE_PATH` (so codex can read the plan for intent) and `PROGRESS_FILE_PATH` (so codex can read prior review iterations and fixer responses and avoid re-reporting fixed issues).
+1. **Resolve the codex prompt** — read `prompts/codex-review.md` through the override chain. Replace `DIFF_COMMAND` using `vcs=$(bash scripts/detect-vcs.sh)`: for `git`, iteration 1 is `git diff DEFAULT_BRANCH...HEAD` and subsequent iterations are `git diff`; for `hg`, iteration 1 is `hg diff -r 'ancestor(., DEFAULT_BRANCH)'` and subsequent iterations are `hg diff`. Also replace `PLAN_FILE_PATH` (so codex can read the plan for intent) and `PROGRESS_FILE_PATH` (so codex can read prior review iterations and fixer responses and avoid re-reporting fixed issues).
 
-2. **Run codex** — `bash ./scripts/run-codex.sh "<resolved prompt>"` with `run_in_background: true`. You will be notified when done — do NOT poll or sleep.
+2. **Run codex** — `bash scripts/run-codex.sh "<resolved prompt>"` with `run_in_background: true`. You will be notified when done — do NOT poll or sleep.
 
 3. **Check codex output** — if codex reports "NO ISSUES FOUND" or equivalent, phase is done. Proceed to step 10.
 
@@ -254,7 +256,7 @@ Same structure as step 7 but with `REVIEW_PHASE` set to `critical`. Resolve `pro
 
 ### Step 11. Finalize
 
-**hg skip**: Detect VCS with `vcs=$(bash ./scripts/detect-vcs.sh)`. If `vcs` is `hg`, skip this entire step. Report to user: "hg detected — skipping finalize (git-only). Override `prompts/finalizer.md` via `.claude/exec-plan/` to enable hg-native finalize." Note that `DEFAULT_BRANCH` substitutes as whatever detect-branch.sh returned — `remote/master` (or `remote/main`/`remote/trunk`) in modern-Mercurial repos that expose remote-tracking refs, `default` in repos that use the traditional named-branch convention — so any `git rebase origin/DEFAULT_BRANCH` in the bundled template must be replaced with the hg equivalent (e.g. `hg rebase -d remote/master`, or `hg rebase -d default` in the named-branch case) in the override. Proceed directly to step 12.
+**hg skip**: Detect VCS with `vcs=$(bash scripts/detect-vcs.sh)`. If `vcs` is `hg`, skip this entire step. Report to user: "hg detected — skipping finalize (git-only). Override `prompts/finalizer.md` via `.claude/exec-plan/` to enable hg-native finalize." Note that `DEFAULT_BRANCH` substitutes as whatever detect-branch.sh returned — `remote/master` (or `remote/main`/`remote/trunk`) in modern-Mercurial repos that expose remote-tracking refs, `default` in repos that use the traditional named-branch convention — so any `git rebase origin/DEFAULT_BRANCH` in the bundled template must be replaced with the hg equivalent (e.g. `hg rebase -d remote/master`, or `hg rebase -d default` in the named-branch case) in the override. Proceed directly to step 12.
 
 Check `finalize_enabled` userConfig (default: true). If false, skip this step.
 
@@ -280,8 +282,8 @@ This step is best-effort — if the stats agent fails or the session log path ca
 
 When stats summary is done (or skipped on failure):
 - **Report autonomous decisions and deviations to the user.** The run had no human to answer questions, so subagents decided judgment calls themselves and logged them. Collect every such entry from the progress file — `grep -E '^\[(decision|deviation)\]' <progress-file>` — and present them in a dedicated section titled **"Decisions made autonomously / Deviations from the plan"**, one bullet per entry with its stated reason, so the user learns every question the run answered on its own and why. If there are none, state "no autonomous decisions or deviations were logged." Do this regardless of whether finalize ran — finalize is skipped on hg or when disabled, so this is the guaranteed place the user always gets the report.
-- Log completion to progress file: `bash ./scripts/append-progress.sh <progress-file> "completed"`
-- Move the finished plan into its `completed/` subdirectory and commit it (best-effort): `bash ./scripts/move-plan.sh <plan-file-path>`. The script is a no-op when the plan is already under `completed/` or missing, derives the target as a `completed/` sibling of the plan's directory (so it respects a custom `plans_dir` and worktrees), and commits the move VCS-aware (git/hg). Do NOT push. If the script exits non-zero, report the failure but do not block completion.
+- Log completion to progress file: `bash scripts/append-progress.sh <progress-file> "completed"`
+- Move the finished plan into its `completed/` subdirectory and commit it (best-effort): `bash scripts/move-plan.sh <plan-file-path>`. The script is a no-op when the plan is already under `completed/` or missing, derives the target as a `completed/` sibling of the plan's directory (so it respects a custom `plans_dir` and worktrees), and commits the move VCS-aware (git/hg). Do NOT push. If the script exits non-zero, report the failure but do not block completion.
 - Report the final line "All N tasks completed, reviews passed, branch finalized". Append ", plan moved to completed/" ONLY when move-plan.sh actually moved the file (it printed `moved plan to ...`); omit the suffix when the move was a no-op (already under `completed/` or missing) or exited non-zero
 
 ## Key rules
