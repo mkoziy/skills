@@ -50,4 +50,6 @@ One plugin-only piece didn't survive the port and isn't included:
 
 - `skill-eval` — a `UserPromptSubmit` hook that forces skill evaluation before every response. Hooks aren't skills; there's no `SKILL.md` to write. Install it from cc-thingz's plugin marketplace if you want it.
 
+These are copies, not a live reference to cc-thingz — that's a deliberate tradeoff for simpler install/reuse via `npx skills add` (a plugin dependency would defeat the point of this flat layout). The tradeoff is that they can drift from upstream: check [umputun/cc-thingz](https://github.com/umputun/cc-thingz) periodically for updates and re-port changes by hand.
+
 `hermestrator-plan` and `grill-plan` are homegrown, not ported from cc-thingz. `hermestrator-plan` is a thin orchestrator over `make` and `critique` (both above), tightly coupled to how [mkoziy/hermestrator](https://github.com/mkoziy/hermestrator) expects its input (branch naming, plan location, labels). `grill-plan` chains `grill-with-docs` (a separate, globally-installed skill — not included here), `brainstorm`, and `make` in the main thread — subagents can't be used for the interactive phases since `AskUserQuestion` inside a subagent never reaches the user.
