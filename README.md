@@ -23,6 +23,7 @@ npx skills add mkoziy/skills --skill critique
 | [make](skills/make/SKILL.md) | Create a structured implementation plan in docs/plans/ with interactive context gathering, optional interactive/auto review. |
 | [exec](skills/exec/SKILL.md) | Execute a plan file's tasks sequentially, each in an isolated subagent, with review and finalize phases. |
 | [hermestrator-plan](skills/hermestrator-plan/SKILL.md) | Turn a GitHub issue into a plan on an agent/issue-&lt;N&gt; branch for [mkoziy/hermestrator](https://github.com/mkoziy/hermestrator)'s poller/worker pipeline to pick up. Chains make, an auto-review, and a critique subagent pass. |
+| [grill-plan](skills/grill-plan/SKILL.md) | Chain grill-with-docs, brainstorm, and make — doc-grilled design and planning, interactively in the main thread. Requires the separately-installed `grill-with-docs` skill. |
 | [git-review](skills/git-review/SKILL.md) | Interactive diff annotation review — edit the diff, get feedback addressed in a loop. |
 | [pr](skills/pr/SKILL.md) | Comprehensive PR/issue review — architecture, tests, scope creep, drafts a review comment. |
 | [writing-style](skills/writing-style/SKILL.md) | Direct, brief technical writing style for tickets, PR descriptions, and review comments. |
@@ -43,4 +44,4 @@ One plugin-only piece didn't survive the port and isn't included:
 
 - `skill-eval` — a `UserPromptSubmit` hook that forces skill evaluation before every response. Hooks aren't skills; there's no `SKILL.md` to write. Install it from cc-thingz's plugin marketplace if you want it.
 
-`hermestrator-plan` is homegrown, not ported from cc-thingz — it's a thin orchestrator over `make` and `critique` (both above), tightly coupled to how [mkoziy/hermestrator](https://github.com/mkoziy/hermestrator) expects its input (branch naming, plan location, labels).
+`hermestrator-plan` and `grill-plan` are homegrown, not ported from cc-thingz. `hermestrator-plan` is a thin orchestrator over `make` and `critique` (both above), tightly coupled to how [mkoziy/hermestrator](https://github.com/mkoziy/hermestrator) expects its input (branch naming, plan location, labels). `grill-plan` chains `grill-with-docs` (a separate, globally-installed skill — not included here), `brainstorm`, and `make` in the main thread — subagents can't be used for the interactive phases since `AskUserQuestion` inside a subagent never reaches the user.
