@@ -2,12 +2,12 @@
 name: grill-plan
 description: Grill a feature idea against docs, then brainstorm it, then turn it into a docs/plans/ plan — all interactively in the main conversation. Use when the user says "grill this with docs then brainstorm and plan", "grill-plan", or wants a doc-grilled design before a plan file exists.
 argument-hint: describe the feature or task
-allowed-tools: Read, Glob, Grep, Bash, Skill, AskUserQuestion
+allowed-tools: Read, Glob, Grep, Bash, Skill, AskUserQuestion, Agent
 ---
 
 # grill-plan
 
-Four-phase orchestrator: grill-with-docs → brainstorm → plan → ship. Runs entirely in the main thread, not in subagents — the first three phases surface things to (or ask things of) the user directly, and a subagent's output isn't visible to them mid-run. Only hand a phase to a subagent if a future phase here is explicitly non-interactive (none currently are).
+Four-phase orchestrator: grill-with-docs → brainstorm → plan → ship. Runs entirely in the main thread, not in subagents — the first three phases surface things to (or ask things of) the user directly, and a subagent's output isn't visible to them mid-run. The one exception is the critique pass in Phase 3, which is non-interactive by design (a one-shot report, not a dialogue) and is explicitly handed to a subagent below.
 
 **Dependency**: requires the `grill-with-docs` skill to be installed (it's a separate, globally-installed skill, not part of this repo — `disable-model-invocation: true`, so it only runs when called by name, which is what Phase 1 does). If it isn't installed, tell the user and stop rather than substituting something else.
 
@@ -23,7 +23,9 @@ Invoke the `brainstorm` skill (Skill tool), passing `$ARGUMENTS` plus a short su
 
 Once brainstorm converges on a design, invoke the `make` skill (Skill tool), passing the finalized design (not the raw original ask) as context. Let `make` run its own question loop and write `docs/plans/yyyymmdd-<task-name>.md`.
 
-Let `make` reach its own "what's next" menu and let the user drive that choice themselves rather than picking on their behalf. Once that resolves (auto-review applied, interactive work paused, or "done" picked), continue to Phase 4.
+Let `make` reach its own "what's next" menu and let the user drive that choice themselves rather than picking on their behalf. Once that resolves (auto-review applied, interactive work paused, or "done" picked), run a critique pass before continuing to Phase 4.
+
+**Critique pass.** Launch a subagent (Agent tool, `subagent_type: general-purpose`) with a prompt instructing it to invoke the `critique` skill (Skill tool) against the plan file's path (`docs/plans/<plan-file>`), then return the critique's full report verbatim. Show that report to the user as-is — don't summarize, filter, or soften it. This runs once, unconditionally, regardless of which `make` menu option the user picked; it's a one-shot report, not a loop. The user decides what to do with it (edit the plan directly, re-run `make`'s interactive/auto review, or ignore it and proceed) before moving to Phase 4.
 
 ## Phase 4: Ship
 
