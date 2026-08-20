@@ -23,7 +23,9 @@ Invoke the `brainstorm` skill (Skill tool), passing `$ARGUMENTS` plus a short su
 
 Once brainstorm converges on a design, invoke the `make` skill (Skill tool), passing the finalized design (not the raw original ask) as context. Let `make` run its own question loop and write `docs/plans/yyyymmdd-<task-name>.md`.
 
-Let `make` reach its own "what's next" menu and let the user drive that choice themselves rather than picking on their behalf. Once that resolves (auto-review applied, interactive work paused, or "done" picked), run a critique pass before continuing to Phase 4.
+**Defer the commit.** `make`'s own Step 3 menu commits the plan file the instant "Done" or "Implement" is picked. Don't let it: at this point in grill-plan there's no branch or issue yet (Phase 4 creates both), so that commit would land on whatever branch the session started on instead of `agent/issue-<N>`, and Phase 4's own commit step would then find nothing new to stage. When presenting `make`'s menu, relabel "Done" as **"Continue"** and skip its commit action — go straight into the critique pass below instead. "Interactive review" and "Auto review" still run normally (they don't commit). If the user picks "Implement", also skip its commit: run the critique pass, then let Phase 4 create the issue/branch/commit before implementation starts.
+
+Once the menu resolves this way, run a critique pass before continuing to Phase 4.
 
 **Critique pass.** Launch a subagent (Agent tool, `subagent_type: general-purpose`) with a prompt instructing it to invoke the `critique` skill (Skill tool) against the plan file's path (`docs/plans/<plan-file>`), then return the critique's full report verbatim. Show that report to the user as-is — don't summarize, filter, or soften it. This runs once, unconditionally, regardless of which `make` menu option the user picked; it's a one-shot report, not a loop. The user decides what to do with it (edit the plan directly, re-run `make`'s interactive/auto review, or ignore it and proceed) before moving to Phase 4.
 
