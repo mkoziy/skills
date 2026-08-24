@@ -37,7 +37,7 @@ Turn the finished plan (and any ADRs Phase 1 wrote under `docs/adr/`) into a Git
 
 1. **Enforce one open plan.** List `docs/plans/*.md` excluding `docs/plans/completed/`. If any file other than the one just written exists, this violates the one-open-plan rule — stop and ask the user (plain conversational text, not `AskUserQuestion`, since "move it to completed", "abandon it", or "let both stand" all need room to discuss): whether to move the older plan(s) to `docs/plans/completed/` first, or abort Phase 4 so they can deal with it themselves.
 2. **Create the issue.** `gh issue create --title "<task name>" --body "<design summary>"` — body is the brainstormed design summary (same one handed to `make`), not the raw plan file dump. Capture the returned issue number `N`.
-3. **Branch.** Same convention as `hermestrator-plan`: `agent/issue-<N>`, created from the base branch (`git fetch origin <base>`, `git checkout -b agent/issue-<N> origin/<base>`). Uncommitted plan/ADR files in the working tree carry over automatically.
+3. **Branch.** Same convention as `hermestrator-plan`: `agent/issue-<N>`. Use `gh issue develop <N> --name agent/issue-<N> --base <base> --checkout` instead of a plain `git checkout -b` — it links the branch to the issue so it shows up under the issue's "Development" section in the GitHub UI. Uncommitted plan/ADR files in the working tree carry over automatically.
 4. **Commit and push.** Stage only the plan file and any ADR files Phase 1 created this session — never `git add -A`:
    ```bash
    git add docs/plans/<plan-file> docs/adr/<adr-files...>

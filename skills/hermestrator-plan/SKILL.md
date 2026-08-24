@@ -39,7 +39,7 @@ Determine the base branch (default `main`; check `gh repo view --json defaultBra
 
 - Branch name is always `agent/issue-<N>` — the exact name hermestrator's poller looks for (`scripts/github-ticket-poller.sh` in hermestrator).
 - Check if it exists locally (`git branch --list agent/issue-<N>`) or on the remote (`git ls-remote --heads origin agent/issue-<N>`).
-  - **Doesn't exist**: create it from the base branch — `git fetch origin <base>` then `git checkout -b agent/issue-<N> origin/<base>`.
+  - **Doesn't exist**: `gh issue develop <N> --name agent/issue-<N> --base <base> --checkout` — links the branch to the issue so it shows up under the issue's "Development" section in the GitHub UI, and checks it out locally.
   - **Exists locally**: `git checkout agent/issue-<N>` and `git pull`.
   - **Exists on remote only**: `git checkout -b agent/issue-<N> origin/agent/issue-<N>`.
 - Check `docs/plans/` on this branch (excluding `docs/plans/completed/`) for an existing `.md` file from a prior run of this skill. If one exists, ask the user in plain conversational text (not `AskUserQuestion` — this is a real judgment call, not a fixed choice) whether to replace it or keep both before continuing.
