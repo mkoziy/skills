@@ -21,6 +21,16 @@ Helper scripts in this skill's `scripts/` directory. Paths below are relative to
 - `calc-version.sh <type>` - outputs new version (e.g., `v1.2.3`)
 - `get-notes.sh <platform>` - outputs release notes (PRs/MRs or commits)
 
+Every helper exits non-zero and prints the reason on stderr. If any of Steps 2, 5 or 6
+fails, report that text to the user and **abort the workflow** - do not continue with an
+empty value. `get-notes.sh` in particular fails when the forge CLI is missing,
+unauthenticated or rate-limited; continuing there publishes a release whose notes list
+none of its PRs.
+
+On Gitea, `get-notes.sh` collects no PRs and returns commit-derived notes with a warning
+on stderr, because `tea pr list` exposes neither a merged flag nor a merge timestamp. That warning
+is not a failure - show it to the user with the preview in Step 8 and carry on.
+
 ## Workflow
 
 ### Step 1: Ask Release Type
@@ -185,6 +195,21 @@ Use AskUserQuestion tool to confirm:
 ### Step 9: Create Release
 
 Only after user confirms:
+
+Create an annotated tag locally and push it before calling the forge. Forge release
+commands create lightweight tags when the tag is absent; a lightweight tag has no
+release time of its own, so the next release would use the target commit's older
+committer date as its PR cutoff and re-list already released PRs.
+
+```bash
+git tag -a "$new_version" -m "Version ${new_version#v}"
+git push origin "$new_version"
+```
+
+If either command fails, report the error and abort before creating the release. If the
+forge release command below fails after the push, report that the annotated tag already
+exists remotely and retry only that release command after the problem is resolved. Do
+not recreate or delete the tag.
 
 **GitHub:**
 ```bash

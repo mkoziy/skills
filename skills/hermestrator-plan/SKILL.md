@@ -13,8 +13,7 @@ This skill is the missing upstream half of hermestrator: hermestrator's poller f
 
 ## Dependencies
 
-- `make` skill (this repo) — plan authoring
-- `critique` skill (this repo) — final scrutiny pass, run in a subagent
+- `make` skill (this repo) — plan authoring; also runs an Auto review and a `critique` pass on the plan automatically before this skill sees its menu
 - `gh` CLI, authenticated, with access to the target repo
 
 ## Arguments
@@ -46,24 +45,22 @@ Determine the base branch (default `main`; check `gh repo view --json defaultBra
 
 ## Step 3: Draft the Plan
 
-Invoke the `make` skill (via the Skill tool), passing as context: the issue title, body, URL, and any extra text from `$ARGUMENTS`. Let `make` run its normal question loop (its Step 0-1.5) and write `docs/plans/yyyymmdd-<task-name>.md` (its Step 2) — do not skip its interactive questions; they're the primary way the plan gets grounded in what the user actually wants, not just what the issue says.
+Invoke the `make` skill (via the Skill tool), passing as context: the issue title, body, URL, and any extra text from `$ARGUMENTS`. Let `make` run its normal question loop (its Step 0-1.5) and write `docs/plans/yyyymmdd-<task-name>.md` (its Step 2) — do not skip its interactive questions; they're the primary way the plan gets grounded in what the user actually wants, not just what the issue says. `make` then automatically runs an Auto review and a `critique` pass against the plan (its Step 3) before presenting its "what's next" menu (its Step 4) — let both run; the critique report produced here is what Step 4 below triages, so there's no separate critique to launch.
 
-When `make` reaches its "what's next" menu (its Step 3), choose **Auto review** on the user's behalf — not Interactive review (that opens an editor/TUI, wrong fit here) and not Implement/Done (too early — the critique pass and Q&A loop below still need to run against the plan). Let `make`'s auto-review subagent run and let `make` apply what it finds, same as a normal `make` session would.
+When `make`'s menu appears, relabel "Done" as **"Continue"** and skip its commit action — this skill's own Step 5 commit uses a message tied to the issue number, and letting `make` commit here would land the wrong message before the Q&A triage below has had a chance to fix anything. Skip **Interactive review** too (opens an editor/TUI, wrong fit here). If the user somehow picks **Implement**, that's still too early — the Q&A loop below hasn't run yet — so skip its commit the same way and proceed to the triage below.
 
-## Step 4: Critique Pass
+## Step 4: Triage and Q&A
 
-Spawn a subagent (Agent tool, `subagent_type: general-purpose`) running the `critique` skill against the plan file `make` produced. Wait for it to return its full report (Verdict, Critical Issues, Blind Spots, Effort Reality Check, Prioritized Actions).
+Take the critique report `make` already produced above — full report (Verdict, Critical Issues, Blind Spots, Effort Reality Check, Prioritized Actions). Don't run `critique` a second time against the same plan; nothing has changed since `make` ran it.
 
-## Step 5: Triage and Q&A
-
-Go through `critique`'s findings one at a time, Critical Issues first:
+Go through its findings one at a time, Critical Issues first:
 
 - **Auto-fixable** — the fix is derivable from context already in hand (the issue, the plan, the repo's own code/conventions): apply it directly to the plan file. Examples: a task missing a test-file path inferable from repo conventions, an internal contradiction between two tasks, a vague success criterion the issue actually specifies elsewhere.
 - **Needs the user** — the fix requires information, a preference, or a scope decision only the user has (a product/scope call, a choice between two valid approaches, an assumption about an external system `critique` can't verify): raise it as a plain conversational message, not a locked `AskUserQuestion`. Explain what `critique` flagged and why it matters, then let the dialogue run — the user may ask what you mean, push back, or want more context before answering. Keep the thread open until they've given enough to act on, then apply the fix to the plan and move to the next item.
 
 No re-run of `critique` after fixes are applied — one pass, not a loop.
 
-## Step 6: Commit and Push
+## Step 5: Commit and Push
 
 Once every finding has been auto-fixed or resolved through the Q&A loop:
 
@@ -73,7 +70,7 @@ git commit -m "docs: plan for #<N> — <issue title>"
 git push -u origin agent/issue-<N>
 ```
 
-## Step 7: Label
+## Step 6: Label
 
 Use AskUserQuestion (this one genuinely is a fixed choice):
 
@@ -105,7 +102,7 @@ Use AskUserQuestion (this one genuinely is a fixed choice):
 
 Apply the chosen labels via `gh issue edit <N> --add-label <label>`.
 
-## Step 8: Report
+## Step 7: Report
 
 Summarize: branch name, plan file path, whether it's labeled `agent-ready`, and (if labeled) that hermestrator's poller will pick it up on its next scheduled run.
 

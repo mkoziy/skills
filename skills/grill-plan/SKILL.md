@@ -7,7 +7,7 @@ allowed-tools: Read, Glob, Grep, Bash, Skill, AskUserQuestion, Agent
 
 # grill-plan
 
-Four-phase orchestrator: grill-with-docs → brainstorm → plan → ship. Runs entirely in the main thread, not in subagents — the first three phases surface things to (or ask things of) the user directly, and a subagent's output isn't visible to them mid-run. The one exception is the critique pass in Phase 3, which is non-interactive by design (a one-shot report, not a dialogue) and is explicitly handed to a subagent below.
+Four-phase orchestrator: grill-with-docs → brainstorm → plan → ship. Runs entirely in the main thread, not in subagents — the first three phases surface things to (or ask things of) the user directly, and a subagent's output isn't visible to them mid-run. The one exception is Phase 3's plan review, which `make` itself hands to subagents internally (a one-shot Auto review plus a critique pass, both non-interactive by design).
 
 **Dependency**: requires the `grill-with-docs` skill to be installed (it's a separate, globally-installed skill, not part of this repo — `disable-model-invocation: true`, so it only runs when called by name, which is what Phase 1 does). If it isn't installed, tell the user and stop rather than substituting something else.
 
@@ -21,15 +21,11 @@ Invoke the `brainstorm` skill (Skill tool), passing `$ARGUMENTS` plus a short su
 
 ## Phase 3: Plan
 
-Once brainstorm converges on a design, invoke the `make` skill (Skill tool), passing the finalized design (not the raw original ask) as context. Let `make` run its own question loop and write `docs/plans/yyyymmdd-<task-name>.md`.
+Once brainstorm converges on a design, invoke the `make` skill (Skill tool), passing the finalized design (not the raw original ask) as context. Let `make` run its own question loop and write `docs/plans/yyyymmdd-<task-name>.md`. `make` then automatically runs its own Auto review and critique passes against the plan (its Step 3) before presenting a menu — let both run and show their reports; that's the same critique pass grill-plan used to spawn separately, so there's no second one to run here anymore.
 
-Then, in this exact order:
+**Handle `make`'s menu without letting it commit.** `make`'s own Step 4 menu commits the plan file the instant "Done" or "Implement" is picked. Don't let it: at this point in grill-plan there's no branch or issue yet (Phase 4 creates both), so that commit would land on whatever branch the session started on instead of `agent/issue-<N>`, and Phase 4's own commit step would then find nothing new to stage. Relabel "Done" as **"Continue"** and skip its commit action. "Interactive review" still runs normally (it doesn't commit). If the user picks "Implement", also skip its commit — let Phase 4 create the issue/branch/commit before implementation starts.
 
-1. **Handle `make`'s menu without letting it commit.** `make`'s own Step 3 menu commits the plan file the instant "Done" or "Implement" is picked. Don't let it: at this point in grill-plan there's no branch or issue yet (Phase 4 creates both), so that commit would land on whatever branch the session started on instead of `agent/issue-<N>`, and Phase 4's own commit step would then find nothing new to stage. Relabel "Done" as **"Continue"** and skip its commit action. "Interactive review" and "Auto review" still run normally (they don't commit). If the user picks "Implement", also skip its commit — critique still runs next, then Phase 4 creates the issue/branch/commit before implementation starts.
-
-2. **Run the critique pass. Do this every time, no exceptions — do not skip to Phase 4 yet.** Launch a subagent (Agent tool, `subagent_type: general-purpose`) with a prompt instructing it to invoke the `critique` skill (Skill tool) against the plan file's path (`docs/plans/<plan-file>`), then return the critique's full report verbatim. Show that report to the user as-is — don't summarize, filter, or soften it. This is unconditional and runs exactly once regardless of which `make` menu option was picked or whether `make`'s own "Auto review" ran — that's a different subagent checking a different thing (plan-structure/template conformance), and does not substitute for this step. It's a one-shot report, not a loop.
-
-3. **Only after the critique report has been shown**, let the user decide what to do with it (edit the plan directly, re-run `make`'s interactive/auto review, or proceed as-is) — then move to Phase 4.
+Once the menu resolves this way, move to Phase 4.
 
 ## Phase 4: Ship
 

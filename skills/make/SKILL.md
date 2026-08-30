@@ -286,21 +286,29 @@ Example (NOTICE: Files block + tests as separate checklist items):
 - third-party service integrations to verify
 ```
 
-## Step 3: Next Steps
+## Step 3: Automatic Review
 
 After creating the file, tell user: "created plan: `docs/plans/yyyymmdd-<task-name>.md`"
 
-Then use AskUserQuestion:
+Then run two checks before asking anything, unconditionally, one after the other — a plan a human hasn't stress-tested yet is unfinished, and making the user opt into that on every single plan is friction that buys nothing (nobody actually wants to skip it). Show each report to the user in full as it completes, don't summarize or soften either one:
+
+1. **Auto review**: read `references/agents/plan-review.txt` from this skill's own directory, substitute `SKILL_ROOT` in its content with this skill's absolute directory path, then launch it as a subagent via the Agent tool with `subagent_type: general-purpose`, passing the resolved text as the prompt plus the plan file path. Show its findings to the user.
+2. **Critique pass**: launch a subagent (Agent tool, `subagent_type: general-purpose`) with a prompt instructing it to invoke the `critique` skill (Skill tool) against the plan file's path, then return the critique's full report verbatim. Show that report to the user as-is.
+
+Both are one-shot reports, not loops — run each exactly once. Other skills that orchestrate `make` (e.g. `grill-plan`, `hermestrator-plan`) can reuse the critique report produced here instead of spawning their own second pass against the same plan.
+
+## Step 4: Next Steps
+
+Once both reviews are shown, use AskUserQuestion:
 
 ```json
 {
   "questions": [{
-    "question": "Plan created. What's next?",
+    "question": "Plan created and reviewed. What's next?",
     "header": "Next step",
     "options": [
-      {"label": "Interactive review", "description": "Open plan in editor for manual annotation and feedback loop"},
-      {"label": "Auto review", "description": "Launch an AI plan-review subagent for automated analysis"},
       {"label": "Implement", "description": "Commit plan and start implementing"},
+      {"label": "Interactive review", "description": "Open plan in editor for manual line-by-line annotation and feedback loop"},
       {"label": "Done", "description": "Commit plan, no further action"}
     ],
     "multiSelect": false
@@ -329,7 +337,6 @@ Then use AskUserQuestion:
     3. run `scripts/plan-annotate.py <plan-file-path>` via Bash
     4. repeat until no diff output (user closed editor without changes)
   when the annotation loop completes, ask again with the remaining options (minus "Interactive review")
-- **Auto review**: read `references/agents/plan-review.txt` from this skill's own directory, substitute `SKILL_ROOT` in its content with this skill's absolute directory path, then launch it as a subagent via the Agent tool with `subagent_type: general-purpose`, passing the resolved text as the prompt plus the plan file path. After it returns, show its findings to the user, then ask again with the same options (minus "Auto review")
 - **Implement**: commit plan with message like "docs: add <topic> implementation plan", then ask implementation mode:
   ```json
   {
