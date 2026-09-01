@@ -290,7 +290,7 @@ Example (NOTICE: Files block + tests as separate checklist items):
 
 After creating the file, tell user: "created plan: `docs/plans/yyyymmdd-<task-name>.md`"
 
-Then run two checks before asking anything, unconditionally, one after the other — a plan a human hasn't stress-tested yet is unfinished, and making the user opt into that on every single plan is friction that buys nothing (nobody actually wants to skip it). Show each report to the user in full as it completes, don't summarize or soften either one:
+Then run two checks before asking anything, unconditionally, sequentially — launch the first subagent, wait for it to finish and show its report, then launch the second. Never launch both at once — a plan a human hasn't stress-tested yet is unfinished, and making the user opt into that on every single plan is friction that buys nothing (nobody actually wants to skip it). Show each report to the user in full as it completes, don't summarize or soften either one:
 
 1. **Auto review**: read `references/agents/plan-review.txt` from this skill's own directory, substitute `SKILL_ROOT` in its content with this skill's absolute directory path, then launch it as a subagent via the Agent tool with `subagent_type: general-purpose`, passing the resolved text as the prompt plus the plan file path. Show its findings to the user.
 2. **Critique pass**: launch a subagent (Agent tool, `subagent_type: general-purpose`) with a prompt instructing it to invoke the `critique` skill (Skill tool) against the plan file's path, then return the critique's full report verbatim. Show that report to the user as-is.
