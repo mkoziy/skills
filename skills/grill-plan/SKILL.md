@@ -11,17 +11,19 @@ Four-phase orchestrator: grill-with-docs → brainstorm → plan → ship. Runs 
 
 **Dependency**: requires the `grill-with-docs` skill to be installed (it's a separate, globally-installed skill, not part of this repo — `disable-model-invocation: true`, so it only runs when called by name, which is what Phase 1 does). If it isn't installed, tell the user and stop rather than substituting something else.
 
+**Also uses**: `grill-brainstorm`, a sibling of this repo's `brainstorm` skill kept solely for grill-plan's Phase 2 (also `disable-model-invocation: true`). Don't call `brainstorm` from grill-plan — use `grill-brainstorm`.
+
 ## Phase 1: Grill with docs
 
 Invoke the `grill-with-docs` skill (Skill tool) with `$ARGUMENTS`. Let it run its full interview/ADR process. Read its output before moving on — anything it surfaces needs to fold into Phase 2, not get silently dropped.
 
 ## Phase 2: Brainstorm
 
-Invoke the `brainstorm` skill (Skill tool), passing `$ARGUMENTS` plus a short summary of Phase 1's output as context. Let it run its normal one-question-at-a-time dialogue in full — don't shortcut it.
+Invoke the `grill-brainstorm` skill (Skill tool) — not `brainstorm` — passing `$ARGUMENTS` plus a short summary of Phase 1's output as context. It's grill-plan's own variant: same one-question-at-a-time dialogue, but it auto-picks the recommended approach instead of asking, and stops after the design is validated instead of running its own next-steps menu. Let it run in full — don't shortcut it.
 
 ## Phase 3: Plan
 
-Once brainstorm converges on a design, invoke the `make` skill (Skill tool), passing the finalized design (not the raw original ask) as context. Let `make` run its own question loop and write `docs/plans/yyyymmdd-<task-name>.md`. `make` then automatically runs its own Auto review and critique passes against the plan (its Step 3) before presenting a menu — let both run and show their reports; that's the same critique pass grill-plan used to spawn separately, so there's no second one to run here anymore.
+Once brainstorm converges on a design, invoke the `make` skill (Skill tool), passing the finalized design (not the raw original ask) as context, plus this instruction: skip Step 0's testing-approach question ("TDD or regular approach?") and default to Regular (code first, then tests) without asking — grill-plan's design phase already covered testing strategy in Phase 3's design sections, so re-asking here is redundant. Let `make` run the rest of its question loop and write `docs/plans/yyyymmdd-<task-name>.md`. `make` then automatically runs its own Auto review and critique passes against the plan (its Step 3) before presenting a menu — let both run and show their reports; that's the same critique pass grill-plan used to spawn separately, so there's no second one to run here anymore.
 
 **Handle `make`'s menu without letting it commit.** `make`'s own Step 4 menu commits the plan file the instant "Done" or "Implement" is picked. Don't let it: at this point in grill-plan there's no branch or issue yet (Phase 4 creates both), so that commit would land on whatever branch the session started on instead of `agent/issue-<N>`, and Phase 4's own commit step would then find nothing new to stage. Relabel "Done" as **"Continue"** and skip its commit action. "Interactive review" still runs normally (it doesn't commit). If the user picks "Implement", also skip its commit — let Phase 4 create the issue/branch/commit before implementation starts.
 
