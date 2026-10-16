@@ -2,6 +2,7 @@
 name: mkz-txt-copy
 description: Copy generated text content to clipboard. Use when user asks to "copy this", "copy to clipboard", "save to clipboard", or after creating emails, messages, letters, or other text content that needs to be shared.
 allowed-tools: Bash
+disable-model-invocation: true
 ---
 
 # Copy Text to Clipboard

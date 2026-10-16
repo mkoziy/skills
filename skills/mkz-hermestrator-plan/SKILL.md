@@ -3,6 +3,7 @@ name: mkz-hermestrator-plan
 description: Turn a GitHub issue into a ready-to-implement plan on an agent/issue-<N> branch, for mkoziy/hermestrator's poller/worker pipeline to pick up. Use when the user says "plan issue <N>", "prep ticket <N> for hermestrator", "hermestrator-plan <N>", or wants a GitHub issue turned into a docs/plans/ plan file on an agent/issue branch.
 argument-hint: <issue-number> [additional context or doc links]
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Agent, AskUserQuestion, Skill
+disable-model-invocation: true
 ---
 
 # hermestrator-plan

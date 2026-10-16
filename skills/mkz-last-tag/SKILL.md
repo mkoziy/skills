@@ -2,6 +2,7 @@
 name: mkz-last-tag
 description: Show commits since the last tag in a formatted table. Use when user asks "what changed since last release", "commits since last tag", "last-tag", "what's new", or wants to see recent unreleased changes.
 allowed-tools: Bash, AskUserQuestion
+disable-model-invocation: true
 ---
 
 # Last Tag - Commits Since Last Release

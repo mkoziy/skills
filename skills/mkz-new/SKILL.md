@@ -2,6 +2,7 @@
 name: mkz-new
 description: Use when user asks to create a release, cut a release, or publish a version. Auto-detects GitHub vs GitLab vs Gitea, calculates semantic version, generates release notes from PRs/MRs or commits, shows preview for confirmation before publishing.
 allowed-tools: Bash, AskUserQuestion
+disable-model-invocation: true
 ---
 
 # Release Workflow
