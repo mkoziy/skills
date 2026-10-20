@@ -156,6 +156,10 @@ Check `docs/plans/` for existing files, then create `docs/plans/yyyymmdd-<task-n
 - related patterns found: [patterns discovered]
 - dependencies identified: [dependencies]
 
+## ADRs
+<!-- Include this section only when the planning context names ADRs. Link every supplied ADR with a relative Markdown link and state the decision it constrains. -->
+- [ADR title](../adr/<adr-file>.md) — [decision relevant to this plan]
+
 ## Development Approach
 - **testing approach**: [TDD / Regular - from user preference in planning]
 - complete each task fully before moving to the next

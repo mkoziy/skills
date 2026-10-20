@@ -30,8 +30,9 @@ args+=("--sandbox" "read-only")
 # suppression -- any other value (including `0`, `false`, empty) keeps
 # the overrides on, matching the documented "set to 1 to enable" semantic.
 if [ "${CODEX_NO_OVERRIDES:-}" != 1 ]; then
+    # Model comes from the user's Codex config unless CODEX_MODEL is set.
+    [ -n "${CODEX_MODEL:-}" ] && args+=("-c" "model=$CODEX_MODEL")
     args+=(
-        "-c" "model=${CODEX_MODEL:-gpt-5.5}"
         "-c" "model_reasoning_effort=xhigh"
         "-c" "stream_idle_timeout_ms=3600000"
     )
@@ -41,4 +42,5 @@ fi
 # <stdin> block even when a prompt arg is given, so an inherited open pipe
 # (e.g. background launch) would block read_to_end forever. /dev/null gives
 # immediate EOF; empty stdin is ignored when a prompt arg is present.
-codex "${args[@]}" "$prompt" < /dev/null
+# Replace the wrapper so cancellation reaches Codex directly.
+exec codex "${args[@]}" "$prompt" < /dev/null

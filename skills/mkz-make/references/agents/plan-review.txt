@@ -19,7 +19,7 @@ If the output is non-empty, treat it as additional review criteria that suppleme
 The plan template is defined in the `mkz-make` skill's SKILL.md (referred to as "plan template" below).
 
 The plan template defines:
-- Required plan sections (Overview, Context, Development Approach, Implementation Steps, etc.)
+- Required plan sections (Overview, Context, Development Approach, Implementation Steps, etc.) and an ADR section whenever planning context supplied ADRs
 - Task structure guidelines (one logical unit per task, specific names, test requirements)
 - Progress tracking markers ([ ], [x], +, warning)
 - Execution enforcement rules
@@ -99,6 +99,11 @@ Per plan template rules:
 - Uses project's preferred libraries/approaches
 - Comment style matches project rules
 - Aligns with user-provided custom rules (if loaded above)
+
+#### ADR Traceability (Important)
+- When planning context supplied one or more ADRs, the plan has an `## ADRs` section
+- Every supplied ADR is linked with a relative Markdown link
+- Each link states the decision it constrains; no ADR is merely listed without relevance
 
 ## Output Format
 

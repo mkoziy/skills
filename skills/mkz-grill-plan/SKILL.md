@@ -7,15 +7,15 @@ allowed-tools: Read, Glob, Grep, Bash, Skill, AskUserQuestion, Agent
 
 # grill-plan
 
-Four-phase orchestrator: grill-with-docs → brainstorm → plan → ship. Runs entirely in the main thread, not in subagents — the first three phases surface things to (or ask things of) the user directly, and a subagent's output isn't visible to them mid-run. The one exception is Phase 3's plan review, which `mkz-make` itself hands to subagents internally (a one-shot Auto review plus a critique pass, both non-interactive by design).
+Four-phase orchestrator: mkz-grill-with-docs → brainstorm → plan → ship. Runs entirely in the main thread, not in subagents — the first three phases surface things to (or ask things of) the user directly, and a subagent's output isn't visible to them mid-run. The one exception is Phase 3's plan review, which `mkz-make` itself hands to subagents internally (a one-shot Auto review plus a critique pass, both non-interactive by design).
 
-**Dependency**: requires the `grill-with-docs` skill to be installed (it's a separate, globally-installed skill, not part of this repo — `disable-model-invocation: true`, so it only runs when called by name, which is what Phase 1 does). If it isn't installed, tell the user and stop rather than substituting something else.
+**Dependency**: requires the sibling `mkz-grill-with-docs` skill, which in turn requires the separately installed `domain-modeling` skill. If either is unavailable, tell the user and stop rather than substituting something else.
 
 **Also uses**: `mkz-grill-brainstorm`, a sibling of this repo's `mkz-brainstorm` skill kept solely for grill-plan's Phase 2 (also `disable-model-invocation: true`). Don't call `mkz-brainstorm` from grill-plan — use `mkz-grill-brainstorm`.
 
 ## Phase 1: Grill with docs
 
-Invoke the `grill-with-docs` skill (Skill tool) with `$ARGUMENTS`. Let it run its full interview/ADR process. Read its output before moving on — anything it surfaces needs to fold into Phase 2, not get silently dropped.
+Invoke the `mkz-grill-with-docs` skill (Skill tool) with `$ARGUMENTS`. Let it run its full interview/ADR process. Read its output before moving on — anything it surfaces needs to fold into Phase 2, not get silently dropped.
 
 ## Phase 2: Brainstorm
 
@@ -23,7 +23,7 @@ Invoke the `mkz-grill-brainstorm` skill (Skill tool) — not `mkz-brainstorm` �
 
 ## Phase 3: Plan
 
-Once brainstorm converges on a design, invoke the `mkz-make` skill (Skill tool), passing the finalized design (not the raw original ask) as context, plus this instruction: skip Step 0's testing-approach question ("TDD or regular approach?") and default to Regular (code first, then tests) without asking — grill-plan's design phase already covered testing strategy in Phase 3's design sections, so re-asking here is redundant. Let `mkz-make` run the rest of its question loop and write `docs/plans/yyyymmdd-<task-name>.md`. `mkz-make` then automatically runs its own Auto review and critique passes against the plan (its Step 3) before presenting a menu — let both run and show their reports; that's the same critique pass grill-plan used to spawn separately, so there's no second one to run here anymore.
+Once brainstorm converges on a design, list every ADR created in Phase 1 and invoke the `mkz-make` skill (Skill tool), passing the finalized design (not the raw original ask) and those exact relative paths as context. Instruct it to add an `## ADRs` section to the plan with a Markdown link to every listed ADR; this is mandatory whenever Phase 1 created ADRs. Also instruct it to skip Step 0's testing-approach question ("TDD or regular approach?") and default to Regular (code first, then tests) without asking — grill-plan's design phase already covered testing strategy in Phase 3's design sections, so re-asking here is redundant. Let `mkz-make` run the rest of its question loop and write `docs/plans/yyyymmdd-<task-name>.md`. `mkz-make` then automatically runs its own Auto review and critique passes against the plan (its Step 3) before presenting a menu — let both run and show their reports; that's the same critique pass grill-plan used to spawn separately, so there's no second one to run here anymore.
 
 **Handle `mkz-make`'s menu without letting it commit.** `mkz-make`'s own Step 4 menu commits the plan file the instant "Done" or "Implement" is picked. Don't let it: at this point in grill-plan there's no branch or issue yet (Phase 4 creates both), so that commit would land on whatever branch the session started on instead of `agent/issue-<N>`, and Phase 4's own commit step would then find nothing new to stage. Relabel "Done" as **"Continue"** and skip its commit action. "Interactive review" still runs normally (it doesn't commit). If the user picks "Implement", also skip its commit — let Phase 4 create the issue/branch/commit before implementation starts.
 
