@@ -11,7 +11,7 @@ npx skills add mkoziy/skills
 Install a single skill:
 
 ```bash
-npx skills add mkoziy/skills --skill critique
+npx skills add mkoziy/skills --skill mkz-critique
 ```
 
 ## Skills
@@ -24,29 +24,34 @@ npx skills add mkoziy/skills --skill critique
 
 | Skill | Description | Portability |
 | --- | --- | --- |
-| [critique](skills/critique/SKILL.md) | Brutally honest critique of a plan, file, or prompt — exposes weak assumptions, logical gaps, and blind spots. | 🟢 |
-| [brainstorm](skills/brainstorm/SKILL.md) | Turn ideas into designs through collaborative, one-question-at-a-time dialogue before implementation. | 🔴 |
-| [make](skills/make/SKILL.md) | Create a structured implementation plan in docs/plans/ with interactive context gathering, optional interactive/auto review. | 🔴 |
-| [exec](skills/exec/SKILL.md) | Execute a plan file's tasks sequentially, each in an isolated subagent, with review and finalize phases. | 🔴 |
-| [hermestrator-plan](skills/hermestrator-plan/SKILL.md) | Turn a GitHub issue into a plan on an agent/issue-&lt;N&gt; branch for [mkoziy/hermestrator](https://github.com/mkoziy/hermestrator)'s poller/worker pipeline to pick up. Chains make, an auto-review, and a critique subagent pass. | 🔴 |
-| [grill-plan](skills/grill-plan/SKILL.md) | Chain grill-with-docs, grill-brainstorm, and make — doc-grilled design and planning, interactively in the main thread. Requires the separately-installed `grill-with-docs` skill. | 🔴 |
-| [grill-brainstorm](skills/grill-brainstorm/SKILL.md) | grill-plan's own copy of brainstorm — auto-picks the recommended approach instead of asking, skips brainstorm's next-steps menu. `disable-model-invocation: true`: only grill-plan calls it by name, never triggers on its own. | 🔴 |
-| [git-review](skills/git-review/SKILL.md) | Interactive diff annotation review — edit the diff, get feedback addressed in a loop. | 🟢 |
-| [pr](skills/pr/SKILL.md) | Comprehensive PR/issue review — architecture, tests, scope creep, drafts a review comment. | 🔴 |
-| [writing-style](skills/writing-style/SKILL.md) | Direct, brief technical writing style for tickets, PR descriptions, and review comments. | 🟢 |
-| [new](skills/new/SKILL.md) | Create a GitHub/GitLab/Gitea release with auto-versioning and generated release notes. | 🟡 |
-| [last-tag](skills/last-tag/SKILL.md) | Show commits since the last tag in a formatted table. | 🟡 |
-| [ask-codex](skills/ask-codex/SKILL.md) | Consult OpenAI Codex as a second opinion for investigation, debugging, or code review. | 🟢 |
-| [dialectic](skills/dialectic/SKILL.md) | Prove and counter-prove a statement with parallel agents to eliminate confirmation bias. | 🔴 |
-| [root-cause-investigator](skills/root-cause-investigator/SKILL.md) | Systematic 5-Why root cause analysis for bugs, failures, and regressions. | 🟢 |
-| [learn](skills/learn/SKILL.md) | Capture strategic knowledge discovered during a session into CLAUDE.md. | 🟡 |
-| [clarify](skills/clarify/SKILL.md) | Investigate and explain user confusion when expectations and reality diverge. | 🔴 |
-| [wrong](skills/wrong/SKILL.md) | Reset and re-evaluate when the current approach has hit a dead end. | 🔴 |
-| [md-copy](skills/md-copy/SKILL.md) | Format the final answer as markdown and copy it to the clipboard. | 🟢 |
-| [txt-copy](skills/txt-copy/SKILL.md) | Copy generated text content to the clipboard. | 🟢 |
-| [thermo-nuclear-code-quality-review](skills/thermo-nuclear-code-quality-review/SKILL.md) | Extremely strict maintainability review for abstraction quality, giant files, and spaghetti-condition growth. | 🟢 |
+| [mkz-critique](skills/mkz-critique/SKILL.md) | Brutally honest critique of a plan, file, or prompt — exposes weak assumptions, logical gaps, and blind spots. | 🟢 |
+| [mkz-brainstorm](skills/mkz-brainstorm/SKILL.md) | Turn ideas into designs through collaborative, one-question-at-a-time dialogue before implementation. | 🔴 |
+| [mkz-make](skills/mkz-make/SKILL.md) | Create a structured implementation plan in docs/plans/ with interactive context gathering, optional interactive/auto review. | 🔴 |
+| [mkz-exec](skills/mkz-exec/SKILL.md) | Execute a plan file's tasks sequentially, each in an isolated subagent, with review and finalize phases. | 🔴 |
+| [mkz-hermestrator-plan](skills/mkz-hermestrator-plan/SKILL.md) | Turn a GitHub issue into a plan on an agent/issue-&lt;N&gt; branch for [mkoziy/hermestrator](https://github.com/mkoziy/hermestrator)'s poller/worker pipeline to pick up. Chains make, an auto-review, and a critique subagent pass. | 🔴 |
+| [mkz-grill-plan](skills/mkz-grill-plan/SKILL.md) | Chain grill-with-docs, grill-brainstorm, and make — doc-grilled design and planning, interactively in the main thread. | 🔴 |
+| [mkz-grill-with-docs](skills/mkz-grill-with-docs/SKILL.md) | Stress-test a plan or design through an interview and capture the resulting ADRs and glossary. | 🔴 |
+| [mkz-grilling](skills/mkz-grilling/SKILL.md) | Grill the user relentlessly about a plan, decision, or idea through a one-round-at-a-time design-tree interview. | 🔴 |
+| [mkz-grill-brainstorm](skills/mkz-grill-brainstorm/SKILL.md) | grill-plan's own copy of brainstorm — auto-picks the recommended approach instead of asking, skips brainstorm's next-steps menu. `disable-model-invocation: true`: only grill-plan calls it by name, never triggers on its own. | 🔴 |
+| [mkz-git-review](skills/mkz-git-review/SKILL.md) | Interactive diff annotation review — edit the diff, get feedback addressed in a loop. | 🟢 |
+| [mkz-pr](skills/mkz-pr/SKILL.md) | Comprehensive PR/issue review — architecture, tests, scope creep, drafts a review comment. | 🔴 |
+| [mkz-writing-style](skills/mkz-writing-style/SKILL.md) | Direct, brief technical writing style for tickets, PR descriptions, and review comments. | 🟢 |
+| [mkz-new](skills/mkz-new/SKILL.md) | Create a GitHub/GitLab/Gitea release with auto-versioning and generated release notes. | 🟡 |
+| [mkz-last-tag](skills/mkz-last-tag/SKILL.md) | Show commits since the last tag in a formatted table. | 🟡 |
+| [mkz-ask-codex](skills/mkz-ask-codex/SKILL.md) | Consult OpenAI Codex as a second opinion for investigation, debugging, or code review. | 🟢 |
+| [mkz-dialectic](skills/mkz-dialectic/SKILL.md) | Prove and counter-prove a statement with parallel agents to eliminate confirmation bias. | 🔴 |
+| [mkz-diagnosing-bugs](skills/mkz-diagnosing-bugs/SKILL.md) | Diagnosis loop for hard bugs and performance regressions. | 🟢 |
+| [mkz-learn](skills/mkz-learn/SKILL.md) | Capture strategic knowledge discovered during a session into CLAUDE.md. | 🟡 |
+| [mkz-clarify](skills/mkz-clarify/SKILL.md) | Investigate and explain user confusion when expectations and reality diverge. | 🔴 |
+| [mkz-wrong](skills/mkz-wrong/SKILL.md) | Reset and re-evaluate when the current approach has hit a dead end. | 🔴 |
+| [mkz-backlog](skills/mkz-backlog/SKILL.md) | Read, work, and maintain a repo's deferred-work items in docs/backlog/, one file per item. | 🟡 |
+| [mkz-retro](skills/mkz-retro/SKILL.md) | Conduct a retrospective on a coding session, suggesting environment/process improvements. | 🔴 |
+| [mkz-md-copy](skills/mkz-md-copy/SKILL.md) | Format the final answer as markdown and copy it to the clipboard. | 🟢 |
+| [mkz-txt-copy](skills/mkz-txt-copy/SKILL.md) | Copy generated text content to the clipboard. | 🟢 |
+| [mkz-thermo-nuclear-code-quality-review](skills/mkz-thermo-nuclear-code-quality-review/SKILL.md) | Extremely strict maintainability review for abstraction quality, giant files, and spaghetti-condition growth. | 🟢 |
+| [mkz-writing-for-agents](skills/mkz-writing-for-agents/SKILL.md) | Writing documents for agents — use when creating/editing skills or modifying AGENTS.md/CLAUDE.md. | 🟢 |
 
-All skills except `critique` and `thermo-nuclear-code-quality-review` are ported from [umputun/cc-thingz](https://github.com/umputun/cc-thingz), flattened out of its per-plugin layout (`plugins/<plugin>/skills/<skill>/`) into the single-tier `skills/<skill>/` layout skills.sh expects, with plugin-only mechanics (`${CLAUDE_PLUGIN_ROOT}`, `${CLAUDE_PLUGIN_DATA}`) rewritten to resolve relative to each skill's own directory. `make` additionally had its `plan-review` custom subagent (`Task(subagent_type=plan-review)`, a Claude Code plugin-only mechanism skills.sh doesn't support) turned into a plain prompt file (`references/agents/plan-review.txt`) launched through a `general-purpose` subagent — the same pattern `exec`'s specialist reviewers already used.
+All skills except `mkz-critique` and `mkz-thermo-nuclear-code-quality-review` are ported from [umputun/cc-thingz](https://github.com/umputun/cc-thingz), flattened out of its per-plugin layout (`plugins/<plugin>/skills/<skill>/`) into the single-tier `skills/<skill>/` layout skills.sh expects, with plugin-only mechanics (`${CLAUDE_PLUGIN_ROOT}`, `${CLAUDE_PLUGIN_DATA}`) rewritten to resolve relative to each skill's own directory. `mkz-make` additionally had its `plan-review` custom subagent (`Task(subagent_type=plan-review)`, a Claude Code plugin-only mechanism skills.sh doesn't support) turned into a plain prompt file (`references/agents/plan-review.txt`) launched through a `general-purpose` subagent — the same pattern `mkz-exec`'s specialist reviewers already used.
 
 One plugin-only piece didn't survive the port and isn't included:
 
@@ -54,6 +59,6 @@ One plugin-only piece didn't survive the port and isn't included:
 
 These are copies, not a live reference to cc-thingz — that's a deliberate tradeoff for simpler install/reuse via `npx skills add` (a plugin dependency would defeat the point of this flat layout). The tradeoff is that they can drift from upstream: check [umputun/cc-thingz](https://github.com/umputun/cc-thingz) periodically for updates and re-port changes by hand.
 
-`thermo-nuclear-code-quality-review` is ported from [cursor/plugins](https://github.com/cursor/plugins/blob/main/cursor-team-kit/skills/thermo-nuclear-code-quality-review/SKILL.md) (`cursor-team-kit`), unmodified since it has no plugin-only mechanics to rewrite. Same drift caveat as the cc-thingz copies applies: check upstream periodically for updates and re-port changes by hand.
+`mkz-thermo-nuclear-code-quality-review` is ported from [cursor/plugins](https://github.com/cursor/plugins/blob/main/cursor-team-kit/skills/thermo-nuclear-code-quality-review/SKILL.md) (`cursor-team-kit`), unmodified since it has no plugin-only mechanics to rewrite. Same drift caveat as the cc-thingz copies applies: check upstream periodically for updates and re-port changes by hand.
 
-`hermestrator-plan` and `grill-plan` are homegrown, not ported from cc-thingz. `hermestrator-plan` is a thin orchestrator over `make` and `critique` (both above), tightly coupled to how [mkoziy/hermestrator](https://github.com/mkoziy/hermestrator) expects its input (branch naming, plan location, labels). `grill-plan` chains `grill-with-docs` (a separate, globally-installed skill — not included here), `grill-brainstorm` (a `disable-model-invocation` fork of `brainstorm`, kept in sync by hand), and `make` in the main thread — subagents can't be used for the interactive phases since `AskUserQuestion` inside a subagent never reaches the user.
+`mkz-hermestrator-plan`, `mkz-grill-plan`, `mkz-backlog`, and `mkz-retro` are homegrown, not ported from cc-thingz. `mkz-hermestrator-plan` is a thin orchestrator over `mkz-make` and `mkz-critique` (both above), tightly coupled to how [mkoziy/hermestrator](https://github.com/mkoziy/hermestrator) expects its input (branch naming, plan location, labels). `mkz-grill-plan` chains `mkz-grill-with-docs`, `mkz-grill-brainstorm` (a `disable-model-invocation` fork of `mkz-brainstorm`, kept in sync by hand), and `mkz-make` in the main thread — subagents can't be used for the interactive phases since `AskUserQuestion` inside a subagent never reaches the user. `mkz-grill-with-docs` itself depends on `domain-modeling`, a separate, globally-installed skill not included here — it stops and reports the missing dependency rather than improvising if that's absent.
