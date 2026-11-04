@@ -28,6 +28,8 @@ Word each question so “yes” accepts the recommendation.
 
 Each round reshapes the tree: settled decisions push the frontier outward and unblock their dependents. Recompute the frontier before the next round. A question whose answer depends on another open question belongs in a later round.
 
+A question is **settled** only by an answer that addresses it: a blanket "ok"/"yes" settles the whole round, while a reply that answers some numbers leaves the rest on the frontier for the next round. When an answer reads two ways (common with dictation), restate your reading as the first question of the next round before building on it.
+
 Finding facts is your job, never the user's. When a frontier question needs a fact from the environment, investigate it. Do not ask the user for information you can obtain yourself. Decisions remain theirs: present the relevant choices and wait for their answer.
 
 The session ends when the frontier is empty: every branch has been visited and nothing material is silently assumed. Do not act on the result until the user confirms the shared understanding.

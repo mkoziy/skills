@@ -30,7 +30,7 @@ npx skills add mkoziy/skills --skill mkz-critique
 | [mkz-exec](skills/mkz-exec/SKILL.md) | Execute a plan file's tasks sequentially, each in an isolated subagent, with review and finalize phases. | 🔴 |
 | [mkz-hermestrator-plan](skills/mkz-hermestrator-plan/SKILL.md) | Turn a GitHub issue into a plan on an agent/issue-&lt;N&gt; branch for [mkoziy/hermestrator](https://github.com/mkoziy/hermestrator)'s poller/worker pipeline to pick up. Chains make, an auto-review, and a critique subagent pass. | 🔴 |
 | [mkz-grill-plan](skills/mkz-grill-plan/SKILL.md) | Chain grill-with-docs, grill-brainstorm, and make — doc-grilled design and planning, interactively in the main thread. | 🔴 |
-| [mkz-grill-with-docs](skills/mkz-grill-with-docs/SKILL.md) | Stress-test a plan or design through an interview and capture the resulting ADRs and glossary. | 🔴 |
+| [mkz-grill-with-docs](skills/mkz-grill-with-docs/SKILL.md) | Stress-test a plan or design through an interview, critique the settled decisions in a fresh subagent, and capture the resulting ADRs and glossary. | 🔴 |
 | [mkz-grilling](skills/mkz-grilling/SKILL.md) | Grill the user relentlessly about a plan, decision, or idea through a one-round-at-a-time design-tree interview. | 🔴 |
 | [mkz-grill-brainstorm](skills/mkz-grill-brainstorm/SKILL.md) | grill-plan's own copy of brainstorm — auto-picks the recommended approach instead of asking, skips brainstorm's next-steps menu. `disable-model-invocation: true`: only grill-plan calls it by name, never triggers on its own. | 🔴 |
 | [mkz-git-review](skills/mkz-git-review/SKILL.md) | Interactive diff annotation review — edit the diff, get feedback addressed in a loop. | 🟢 |
