@@ -1,7 +1,7 @@
 ---
 name: mkz-factory-goal
 description: Turn a product conversation into one `goal`-labeled GitHub issue for the software factory's planner and auditor agents.
-argument-hint: [repo owner/name] [what you want built]
+argument-hint: "[repo owner/name] [what you want built]"
 allowed-tools: Read, Bash, Skill, AskUserQuestion
 disable-model-invocation: true
 ---
