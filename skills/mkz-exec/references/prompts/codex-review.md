@@ -1,13 +1,10 @@
-# Codex review prompt
+# External review prompt
 
-This is the prompt sent to codex. Replace `DIFF_COMMAND`, `PLAN_FILE_PATH`, and `PROGRESS_FILE_PATH` before passing.
+This is the prompt sent to the external review tool. Replace `DIFF_COMMAND`, `PLAN_FILE_PATH`, and `PROGRESS_FILE_PATH` before passing.
 
-Run: `bash ${SKILL_ROOT}/scripts/run-codex.sh "<prompt>"` with `run_in_background: true`. You will be notified when done — do NOT poll or sleep.
+Every iteration uses `DIFF_COMMAND` = `git diff DEFAULT_BRANCH...HEAD` because fixers commit their changes before the next review.
 
-- Iteration 1: `DIFF_COMMAND` = `git diff DEFAULT_BRANCH...HEAD`
-- Subsequent: `DIFF_COMMAND` = `git diff`
-
-If `codex` is not installed, skip this phase.
+Step 9 of the exec skill is authoritative for how the script's exit codes are handled — do not restate the rules here. In particular a `127` is a skip only when the script's own stderr marker is present.
 
 ## Prompt
 

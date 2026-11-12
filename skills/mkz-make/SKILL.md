@@ -299,7 +299,7 @@ Then run two checks before asking anything, unconditionally, sequentially — la
 1. **Auto review**: read `references/agents/plan-review.txt` from this skill's own directory, substitute `SKILL_ROOT` in its content with this skill's absolute directory path, then launch it as a subagent via the Agent tool with `subagent_type: general-purpose`, passing the resolved text as the prompt plus the plan file path. Show its findings to the user.
 2. **Critique pass**: launch a subagent (Agent tool, `subagent_type: general-purpose`) with a prompt instructing it to invoke the `mkz-critique` skill (Skill tool) against the plan file's path, then return the critique's full report verbatim. Show that report to the user as-is.
 
-Both are one-shot reports, not loops — run each exactly once. Other skills that orchestrate `mkz-make` (e.g. `mkz-grill-plan`, `mkz-hermestrator-plan`) can reuse the critique report produced here instead of spawning their own second pass against the same plan.
+Both are one-shot reports, not loops — run each exactly once. Skills that orchestrate `mkz-make` can reuse the critique report produced here instead of spawning their own second pass against the same plan.
 
 ## Step 4: Next Steps
 
